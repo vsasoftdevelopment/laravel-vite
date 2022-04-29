@@ -31,9 +31,16 @@ class LaravelVite
 
         $manifest = json_decode(file_get_contents(public_path('build/manifest.json')), true, 512, JSON_THROW_ON_ERROR);
 
-        return new HtmlString(<<<HTML
-        <script type="module" src="/build/{$manifest[$entrypoint]['file']}"></script>
-        <link rel="stylesheet" href="/build/{$manifest[$entrypoint]['css'][0]}">
-    HTML);
+        $strings = [<<<HTML
+<script type="module" src="/build/{$manifest[$entrypoint]['file']}"></script>
+HTML];
+
+        if ($css = data_get($manifest, $entrypoint.'.css.0')) {
+            $strings[] = <<<HTML
+<link rel="stylesheet" href="/build/{$css}">
+HTML;
+        }
+
+        return new HtmlString(implode(' ', $strings));
     }
 }
